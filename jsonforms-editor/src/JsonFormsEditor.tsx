@@ -74,6 +74,7 @@ interface JsonFormsEditorProps {
   paletteTabs?: PaletteTab[] | null;
   editorRenderers?: JsonFormsRendererRegistryEntry[];
   propertyRenderers?: JsonFormsRendererRegistryEntry[];
+  userID?: string;
 
   propertiesServiceProvider?: (
     schemaProviders: PropertySchemasProvider[],
@@ -104,6 +105,7 @@ export const JsonFormsEditor: React.FC<JsonFormsEditorProps> = ({
   propertyRenderers = defaultPropertyRenderers,
   header = Header,
   footer = Footer,
+  userID,
 }) => {
   const [{ schema, uiSchema }, dispatch] = useReducer(editorReducer, {
     categorizationService: defaultCategorizationService,
@@ -150,6 +152,7 @@ export const JsonFormsEditor: React.FC<JsonFormsEditorProps> = ({
         schemaService,
         paletteService,
         propertiesService,
+        userID,
       }}
     >
       <DndProvider backend={Backend}>
@@ -160,6 +163,7 @@ export const JsonFormsEditor: React.FC<JsonFormsEditorProps> = ({
           header={headerComponent}
           footer={footerComponent}
           paletteTabs={paletteTabs ?? undefined}
+          userID={userID}
         />
       </DndProvider>
     </EditorContextInstance.Provider>
@@ -173,6 +177,7 @@ interface JsonFormsEditorUiProps {
   header?: ComponentType;
   footer?: ComponentType;
   paletteTabs?: PaletteTab[];
+  userID?: string;
 }
 const JsonFormsEditorUi: React.FC<JsonFormsEditorUiProps> = ({
   editorTabs,
@@ -181,10 +186,11 @@ const JsonFormsEditorUi: React.FC<JsonFormsEditorUiProps> = ({
   header,
   footer,
   paletteTabs,
+  userID,
 }) => {
   const classes = useStyles();
   return (
-    <Layout HeaderComponent={header} FooterComponent={footer}>
+    <Layout HeaderComponent={header} FooterComponent={footer} userID={userID}>
       <ReflexContainer
         orientation='vertical'
         className={classes.reflexContainer}

@@ -31,19 +31,23 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface LayoutProps {
-  HeaderComponent?: React.ComponentType;
+  HeaderComponent?: any;
   FooterComponent?: React.ComponentType;
+  userID?: string;
 }
 
 export const Layout: React.FC<LayoutProps> = ({
   HeaderComponent,
   FooterComponent,
+  userID,
   children,
 }) => {
   const classes = useStyles();
   return (
     <div className={classes.container}>
-      <header>{HeaderComponent ? <HeaderComponent /> : null}</header>
+      <header>
+        {HeaderComponent ? <HeaderComponent userID={userID} /> : null}
+      </header>
       <main className={classes.main}>{children}</main>
       <footer className={FooterComponent ? classes.footer : undefined}>
         {FooterComponent ? <FooterComponent /> : null}

@@ -24,7 +24,11 @@ const useStyles = makeStyles(() =>
   })
 );
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  userID?: string;
+}
+
+export const Header: React.FC<HeaderProps> = ({ userID }) => {
   const classes = useStyles();
   const schema = useExportSchema();
   const uiSchema = useExportUiSchema();
@@ -57,6 +61,7 @@ export const Header: React.FC = () => {
           onClose={onClose}
           schema={schema}
           uiSchema={uiSchema}
+          userID={userID}
         />
       )}
     </AppBar>

@@ -26,6 +26,7 @@ export interface EditorContext {
   selection: SelectedElement;
   setSelection: (selection: SelectedElement) => void;
   categorizationService: CategorizationService;
+  userID: String | undefined;
 }
 
 /**We always use a provider so default can be undefined*/

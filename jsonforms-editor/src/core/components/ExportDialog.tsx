@@ -39,12 +39,14 @@ const useStyles = makeStyles((theme: Theme) =>
 export interface ExportDialogProps {
   open: boolean;
   onClose: () => void;
+  userID?: string;
   schema: any;
   uiSchema: any;
 }
 export const ExportDialog = ({
   open,
   onClose,
+  userID,
   schema,
   uiSchema,
 }: ExportDialogProps) => {
@@ -84,6 +86,7 @@ export const ExportDialog = ({
             label='Name des Formulars: '
             variant='standard'
           />
+          <br />
           <Button
             aria-label={'Save form'}
             variant='contained'
