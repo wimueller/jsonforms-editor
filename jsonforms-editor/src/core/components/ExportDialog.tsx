@@ -21,6 +21,51 @@ import React, { useState } from 'react';
 
 import { FormattedJson } from './Formatted';
 
+// TODO callback function sends the form to the hardcoded backend
+async function handleFormSendButtonClick(
+  userID: string,
+  formName: string,
+  uiSchema: any,
+  formSchema: any
+) {
+  // // DEBUG
+  // console.log(
+  //   'Parameter vor saveFormRequest: UserID: ' +
+  //     JSON.stringify(userID) +
+  //     ' formName: ' +
+  //     JSON.stringify(formName) +
+  //     ' uischema: ' +
+  //     JSON.stringify(uiSchema) +
+  //     ' formSchema: ' +
+  //     JSON.stringify(formSchema)
+  // );
+
+  const saveFormRequest: any = await fetch('http://localhost:1234/saveForm', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'same-origin',
+    body: JSON.stringify({
+      userID: userID,
+      formName: formName,
+      uiSchema: uiSchema,
+      formSchema: formSchema,
+    }),
+  }).catch((e) => {
+    console.error('ERROR while saving form: ' + e);
+  });
+  // TODO: save form in backend
+  const result = await saveFormRequest.json();
+  console.log('Result nach saveFromRequest: ' + JSON.stringify(result));
+
+  if (result.hasOwnProperty('created')) {
+    return { success: true };
+  } else {
+    return { error: true };
+  }
+}
+
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     button: {
@@ -50,11 +95,19 @@ export const ExportDialog = ({
   schema,
   uiSchema,
 }: ExportDialogProps) => {
+  // state for the formNameField
+  const [formNameField, setFormNameField] = useState('');
   const classes = useStyles();
   const [selectedTab, setSelectedTab] = useState(0);
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setSelectedTab(newValue);
   };
+
+  // callback for formname textfield change
+  function handleTextFieldChange(event: any) {
+    setFormNameField(event.target.value);
+  }
+
   return (
     <Dialog
       open={open}
@@ -85,6 +138,8 @@ export const ExportDialog = ({
             id='form-name-input'
             label='Name des Formulars: '
             variant='standard'
+            value={formNameField}
+            onChange={handleTextFieldChange}
           />
           <br />
           <Button
@@ -93,7 +148,17 @@ export const ExportDialog = ({
             color='primary'
             className={classes.button}
             startIcon={<DoneIcon />}
-            onClick={onClose}
+            onClick={() => {
+              // TODO: HANDLE TYPEGUARD ERROR
+              if (typeof userID === 'string') {
+                handleFormSendButtonClick(
+                  userID,
+                  formNameField,
+                  uiSchema,
+                  schema
+                );
+              }
+            }}
           >
             Formular in meinem Account abspeichern
           </Button>
