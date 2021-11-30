@@ -12,6 +12,9 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Hidden from '@material-ui/core/Hidden';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
@@ -23,15 +26,15 @@ import { FormattedJson } from './Formatted';
 
 // TODO callback function sends the form to the hardcoded backend
 async function handleFormSendButtonClick(
-  userID: string,
+  user: any,
   formName: string,
   uiSchema: any,
   formSchema: any
 ) {
   // // DEBUG
   // console.log(
-  //   'Parameter vor saveFormRequest: UserID: ' +
-  //     JSON.stringify(userID) +
+  //   'Parameter vor saveFormRequest: User: ' +
+  //     JSON.stringify(user) +
   //     ' formName: ' +
   //     JSON.stringify(formName) +
   //     ' uischema: ' +
@@ -47,15 +50,15 @@ async function handleFormSendButtonClick(
     },
     credentials: 'same-origin',
     body: JSON.stringify({
-      userID: userID,
+      userID: user.user_id,
       formName: formName,
       uiSchema: uiSchema,
       formSchema: formSchema,
+      jwt: user.token,
     }),
   }).catch((e) => {
     console.error('ERROR while saving form: ' + e);
   });
-  // TODO: save form in backend
   const result = await saveFormRequest.json();
   console.log('Result nach saveFromRequest: ' + JSON.stringify(result));
 
@@ -64,6 +67,24 @@ async function handleFormSendButtonClick(
   } else {
     return { error: true };
   }
+}
+
+async function handleLoadFormButtonClick(user: any, uuid: string) {
+  const loadFormRequest: any = await fetch('http://localhost:1234/saveForm', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'same-origin',
+    body: JSON.stringify({
+      userID: user.user_id,
+      uuid: uuid,
+    }),
+  }).catch((e) => {
+    console.error('ERROR while saving form: ' + e);
+  });
+  // TODO: save form in backend
+  const result = await loadFormRequest.json();
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -84,19 +105,20 @@ const useStyles = makeStyles((theme: Theme) =>
 export interface ExportDialogProps {
   open: boolean;
   onClose: () => void;
-  userID?: string;
+  user?: any;
   schema: any;
   uiSchema: any;
 }
 export const ExportDialog = ({
   open,
   onClose,
-  userID,
+  user,
   schema,
   uiSchema,
 }: ExportDialogProps) => {
   // state for the formNameField
   const [formNameField, setFormNameField] = useState('');
+  const [formPickerSelectItem, setFormPickerSelectItem] = useState('');
   const classes = useStyles();
   const [selectedTab, setSelectedTab] = useState(0);
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
@@ -106,6 +128,11 @@ export const ExportDialog = ({
   // callback for formname textfield change
   function handleTextFieldChange(event: any) {
     setFormNameField(event.target.value);
+  }
+
+  // callback for formPickerSelectItem change
+  function handleFormPickerSelectItemChange(event: any) {
+    setFormPickerSelectItem(event.target.value);
   }
 
   return (
@@ -125,7 +152,8 @@ export const ExportDialog = ({
         <Tabs value={selectedTab} onChange={handleTabChange}>
           <Tab label='Schema' />
           <Tab label='UI Schema' />
-          <Tab label='Workflow Generator Anbindung' />
+          <Tab label='Formular an Workflow-Generator senden' />
+          <Tab label='Formular aus Workflow-Generator bearbeiten' />
         </Tabs>
         <Hidden xsUp={selectedTab !== 0}>
           <FormattedJson object={schema} />
@@ -149,18 +177,38 @@ export const ExportDialog = ({
             className={classes.button}
             startIcon={<DoneIcon />}
             onClick={() => {
-              // TODO: HANDLE TYPEGUARD ERROR
-              if (typeof userID === 'string') {
-                handleFormSendButtonClick(
-                  userID,
-                  formNameField,
-                  uiSchema,
-                  schema
-                );
-              }
+              handleFormSendButtonClick(user, formNameField, uiSchema, schema);
             }}
           >
             Formular in meinem Account abspeichern
+          </Button>
+        </Hidden>
+        <Hidden xsUp={selectedTab !== 3}>
+          <InputLabel id='form-picker-select-label'>
+            Formular auswählen
+          </InputLabel>
+          <Select
+            labelId='form-picker-select-label'
+            id='form-picker-select'
+            value={formPickerSelectItem}
+            label='Formular auswählen'
+            onChange={handleFormPickerSelectItemChange}
+          >
+            <MenuItem value={10}>Ten</MenuItem>
+            <MenuItem value={20}>Twenty</MenuItem>
+            <MenuItem value={30}>Thirty</MenuItem>
+          </Select>
+          <Button
+            aria-label={'Load form'}
+            variant='contained'
+            color='primary'
+            className={classes.button}
+            startIcon={<DoneIcon />}
+            onClick={() => {
+              handleLoadFormButtonClick(user, formNameField);
+            }}
+          >
+            Ausgewähltes Formular in den Editor laden
           </Button>
         </Hidden>
       </DialogContent>
