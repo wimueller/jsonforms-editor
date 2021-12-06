@@ -20,7 +20,7 @@ import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import Cancel from '@material-ui/icons/Cancel';
 import DoneIcon from '@material-ui/icons/Done';
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { FormattedJson } from './Formatted';
 
@@ -83,8 +83,31 @@ async function handleLoadFormButtonClick(user: any, uuid: string) {
   }).catch((e) => {
     console.error('ERROR while saving form: ' + e);
   });
-  // TODO: save form in backend
   const result = await loadFormRequest.json();
+}
+
+// load all forms accessible by the logged in user
+async function loadSelectFormElements(user: any) {
+  const receivedFormsRequest: any = await fetch(
+    'http://localhost:1234/getFormIDs',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        userID: user.user_id,
+      }),
+    }
+  ).catch((e) => {
+    console.error('ERROR while saving form: ' + e);
+  });
+  const receivedFormObjects: [any] = await receivedFormsRequest.json();
+
+  return receivedFormObjects.map((formObj: any, index: Number) => {
+    return <MenuItem value={formObj.uuid}>{formObj.name}</MenuItem>;
+  });
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -124,6 +147,24 @@ export const ExportDialog = ({
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setSelectedTab(newValue);
   };
+  const [selectComponents, setSelectComponents] = useState([Element]);
+
+  // memoized callback for select component
+  const fetchSelectFormElements = useCallback(async () => {
+    var elements = await loadSelectFormElements(user);
+    return elements;
+  }, [user]);
+
+  // useEffect to load the users forms
+  useEffect(() => {
+    var test = async () => {
+      var testy = await fetchSelectFormElements();
+      setSelectComponents(testy as Element);
+      return testy;
+    };
+    // @ts-ignore
+    //setSelectComponents(test());
+  }, []);
 
   // callback for formname textfield change
   function handleTextFieldChange(event: any) {
@@ -194,9 +235,7 @@ export const ExportDialog = ({
             label='Formular auswählen'
             onChange={handleFormPickerSelectItemChange}
           >
-            <MenuItem value={10}>Ten</MenuItem>
-            <MenuItem value={20}>Twenty</MenuItem>
-            <MenuItem value={30}>Thirty</MenuItem>
+            {selectComponents}
           </Select>
           <Button
             aria-label={'Load form'}
