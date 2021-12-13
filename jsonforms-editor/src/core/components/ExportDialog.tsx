@@ -5,6 +5,7 @@
  * https://github.com/eclipsesource/jsonforms-editor/blob/master/LICENSE
  * ---------------------------------------------------------------------
  */
+// @ts-nocheck
 import { TextField } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -105,9 +106,7 @@ async function loadSelectFormElements(user: any) {
   });
   const receivedFormObjects: [any] = await receivedFormsRequest.json();
 
-  return receivedFormObjects.map((formObj: any, index: Number) => {
-    return <MenuItem value={formObj.uuid}>{formObj.name}</MenuItem>;
-  });
+  return receivedFormObjects;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -147,23 +146,48 @@ export const ExportDialog = ({
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setSelectedTab(newValue);
   };
-  const [selectComponents, setSelectComponents] = useState([Element]);
+  const [selectComponents, setSelectComponents] = useState(null);
 
-  // memoized callback for select component
-  const fetchSelectFormElements = useCallback(async () => {
-    var elements = await loadSelectFormElements(user);
-    return elements;
-  }, [user]);
+  async function fetchSelectFormElements() {
+    console.error('Load Select Form start');
+    let formObject = await loadSelectFormElements(user);
+    console.error('FormObject: ', formObject);
+    setSelectComponents(formObject);
+  }
+
+  function renderSelectMenuItems() {
+    let output = [];
+    if (selectComponents == null) {
+      return <MenuItem value='loading'>Lädt</MenuItem>;
+    }
+    let keys = Object.keys(selectComponents);
+    for (let key of keys) {
+      const selectComponent = selectComponents[key];
+      output.push(
+        <MenuItem value={selectComponent.uuid}>{selectComponent.name}</MenuItem>
+      );
+    }
+    return output;
+  }
+
+  function renderSelectFormElements() {
+    return (
+      <Select
+        key={JSON.stringify(selectComponents)}
+        labelId='form-picker-select-label'
+        id='form-picker-select'
+        value={formPickerSelectItem}
+        label='Formular auswählen'
+        onChange={handleFormPickerSelectItemChange}
+      >
+        {renderSelectMenuItems()}
+      </Select>
+    );
+  }
 
   // useEffect to load the users forms
   useEffect(() => {
-    var test = async () => {
-      var testy = await fetchSelectFormElements();
-      setSelectComponents(testy as Element);
-      return testy;
-    };
-    // @ts-ignore
-    //setSelectComponents(test());
+    fetchSelectFormElements();
   }, []);
 
   // callback for formname textfield change
@@ -228,15 +252,7 @@ export const ExportDialog = ({
           <InputLabel id='form-picker-select-label'>
             Formular auswählen
           </InputLabel>
-          <Select
-            labelId='form-picker-select-label'
-            id='form-picker-select'
-            value={formPickerSelectItem}
-            label='Formular auswählen'
-            onChange={handleFormPickerSelectItemChange}
-          >
-            {selectComponents}
-          </Select>
+          {renderSelectFormElements()}
           <Button
             aria-label={'Load form'}
             variant='contained'
