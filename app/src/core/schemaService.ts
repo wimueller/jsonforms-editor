@@ -68,4 +68,6 @@ const exampleUischema = undefined;
 export class ExampleSchemaService implements SchemaService {
   getSchema = async () => exampleSchema;
   getUiSchema = async () => exampleUischema;
+  setSchema = async () => undefined;
+  setUiSchema = async () => undefined;
 }

@@ -9,9 +9,13 @@
 export interface SchemaService {
   getSchema(): Promise<any>;
   getUiSchema(): Promise<any>;
+  setSchema(schema: any): Promise<any>;
+  setUiSchema(uiSchema: any): Promise<any>;
 }
 
 export class EmptySchemaService implements SchemaService {
   getSchema = async () => undefined;
   getUiSchema = async () => undefined;
+  setSchema = async () => undefined;
+  setUiSchema = async () => undefined;
 }

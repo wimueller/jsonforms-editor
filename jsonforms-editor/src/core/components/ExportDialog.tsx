@@ -70,21 +70,26 @@ async function handleFormSendButtonClick(
   }
 }
 
-async function handleLoadFormButtonClick(user: any, uuid: string) {
-  const loadFormRequest: any = await fetch('http://localhost:1234/saveForm', {
+async function handleLoadFormButtonClick(user: any, selectObject: any) {
+  const loadFormRequest: any = await fetch('http://localhost:1234/loadForm', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     credentials: 'same-origin',
     body: JSON.stringify({
-      userID: user.user_id,
-      uuid: uuid,
+      jwt: user.token,
+      uuid: selectObject.uuid,
     }),
   }).catch((e) => {
     console.error('ERROR while saving form: ' + e);
   });
-  const result = await loadFormRequest.json();
+  var loadedForm = null;
+  try {
+    loadedForm = await loadFormRequest.json();
+  } catch (error) {
+    console.error('Loading form failed: ', error);
+  }
 }
 
 // load all forms accessible by the logged in user
@@ -260,7 +265,7 @@ export const ExportDialog = ({
             className={classes.button}
             startIcon={<DoneIcon />}
             onClick={() => {
-              handleLoadFormButtonClick(user, formNameField);
+              handleLoadFormButtonClick(user, formPickerSelectItem);
             }}
           >
             Ausgewähltes Formular in den Editor laden
