@@ -79,7 +79,7 @@ async function handleLoadFormButtonClick(user: any, selectObject: any) {
     credentials: 'same-origin',
     body: JSON.stringify({
       jwt: user.token,
-      uuid: selectObject.uuid,
+      uuid: selectObject,
     }),
   }).catch((e) => {
     console.error('ERROR while saving form: ' + e);
