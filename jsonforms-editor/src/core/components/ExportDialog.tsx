@@ -22,7 +22,9 @@ import Tabs from '@material-ui/core/Tabs';
 import Cancel from '@material-ui/icons/Cancel';
 import DoneIcon from '@material-ui/icons/Done';
 import React, { useCallback, useEffect, useState } from 'react';
-
+import { EditorContextInstance } from '../context/context';
+import { EditorAction } from '../model/actions';
+import { Actions } from '../model';
 import { FormattedJson } from './Formatted';
 
 // TODO callback function sends the form to the hardcoded backend
@@ -70,7 +72,11 @@ async function handleFormSendButtonClick(
   }
 }
 
-async function handleLoadFormButtonClick(user: any, selectObject: any) {
+async function handleLoadFormButtonClick(
+  user: any,
+  selectObject: any,
+  dispatch: any
+) {
   const loadFormRequest: any = await fetch('http://localhost:1234/loadForm', {
     method: 'POST',
     headers: {
@@ -82,7 +88,7 @@ async function handleLoadFormButtonClick(user: any, selectObject: any) {
       uuid: selectObject,
     }),
   }).catch((e) => {
-    console.error('ERROR while saving form: ' + e);
+    console.error('ERROR while loading form: ' + e);
   });
   var loadedForm = null;
   try {
@@ -90,6 +96,9 @@ async function handleLoadFormButtonClick(user: any, selectObject: any) {
   } catch (error) {
     console.error('Loading form failed: ', error);
   }
+  console.error('handleLoadFormButtonClick loadedForm: ', loadedForm);
+  // set the schema in the editor context
+  dispatch(Actions.setSchemas(loadedForm.dataSchema, loadedForm.uiSchema));
 }
 
 // load all forms accessible by the logged in user
@@ -151,6 +160,7 @@ export const ExportDialog = ({
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setSelectedTab(newValue);
   };
+  // stores the list of available forms
   const [selectComponents, setSelectComponents] = useState(null);
 
   async function fetchSelectFormElements() {
@@ -206,84 +216,97 @@ export const ExportDialog = ({
   }
 
   return (
-    <Dialog
-      open={open}
-      keepMounted
-      onClose={onClose}
-      aria-labelledby='export-dialog-title'
-      aria-describedby='export-dialog-description'
-      maxWidth='md'
-      fullWidth
-    >
-      <DialogTitle className={classes.title} id='export-dialog-title'>
-        {'Export'}
-      </DialogTitle>
-      <DialogContent className={classes.content}>
-        <Tabs value={selectedTab} onChange={handleTabChange}>
-          <Tab label='Schema' />
-          <Tab label='UI Schema' />
-          <Tab label='Formular an Workflow-Generator senden' />
-          <Tab label='Formular aus Workflow-Generator bearbeiten' />
-        </Tabs>
-        <Hidden xsUp={selectedTab !== 0}>
-          <FormattedJson object={schema} />
-        </Hidden>
-        <Hidden xsUp={selectedTab !== 1}>
-          <FormattedJson object={uiSchema} />
-        </Hidden>
-        <Hidden xsUp={selectedTab !== 2}>
-          <TextField
-            id='form-name-input'
-            label='Name des Formulars: '
-            variant='standard'
-            value={formNameField}
-            onChange={handleTextFieldChange}
-          />
-          <br />
-          <Button
-            aria-label={'Save form'}
-            variant='contained'
-            color='primary'
-            className={classes.button}
-            startIcon={<DoneIcon />}
-            onClick={() => {
-              handleFormSendButtonClick(user, formNameField, uiSchema, schema);
-            }}
-          >
-            Formular in meinem Account abspeichern
-          </Button>
-        </Hidden>
-        <Hidden xsUp={selectedTab !== 3}>
-          <InputLabel id='form-picker-select-label'>
-            Formular auswählen
-          </InputLabel>
-          {renderSelectFormElements()}
-          <Button
-            aria-label={'Load form'}
-            variant='contained'
-            color='primary'
-            className={classes.button}
-            startIcon={<DoneIcon />}
-            onClick={() => {
-              handleLoadFormButtonClick(user, formPickerSelectItem);
-            }}
-          >
-            Ausgewähltes Formular in den Editor laden
-          </Button>
-        </Hidden>
-      </DialogContent>
-      <DialogActions>
-        <Button
-          aria-label={'Close'}
-          variant='contained'
-          color='primary'
-          className={classes.button}
-          startIcon={<Cancel />}
-          onClick={onClose}
+    <EditorContextInstance.Consumer>
+      {({ dispatch }) => (
+        <Dialog
+          open={open}
+          keepMounted
+          onClose={onClose}
+          aria-labelledby='export-dialog-title'
+          aria-describedby='export-dialog-description'
+          maxWidth='md'
+          fullWidth
         >
-          Close
-        </Button>
-      </DialogActions>
-    </Dialog>
+          <DialogTitle className={classes.title} id='export-dialog-title'>
+            {'Export'}
+          </DialogTitle>
+          <DialogContent className={classes.content}>
+            <Tabs value={selectedTab} onChange={handleTabChange}>
+              <Tab label='Schema' />
+              <Tab label='UI Schema' />
+              <Tab label='Formular an Workflow-Generator senden' />
+              <Tab label='Formular aus Workflow-Generator bearbeiten' />
+            </Tabs>
+            <Hidden xsUp={selectedTab !== 0}>
+              <FormattedJson object={schema} />
+            </Hidden>
+            <Hidden xsUp={selectedTab !== 1}>
+              <FormattedJson object={uiSchema} />
+            </Hidden>
+            <Hidden xsUp={selectedTab !== 2}>
+              <TextField
+                id='form-name-input'
+                label='Name des Formulars: '
+                variant='standard'
+                value={formNameField}
+                onChange={handleTextFieldChange}
+              />
+              <br />
+              <Button
+                aria-label={'Save form'}
+                variant='contained'
+                color='primary'
+                className={classes.button}
+                startIcon={<DoneIcon />}
+                onClick={() => {
+                  handleFormSendButtonClick(
+                    user,
+                    formNameField,
+                    uiSchema,
+                    schema
+                  );
+                }}
+              >
+                Formular in meinem Account abspeichern
+              </Button>
+            </Hidden>
+            <Hidden xsUp={selectedTab !== 3}>
+              <InputLabel id='form-picker-select-label'>
+                Formular auswählen
+              </InputLabel>
+              {renderSelectFormElements()}
+              <Button
+                aria-label={'Load form'}
+                variant='contained'
+                color='primary'
+                className={classes.button}
+                startIcon={<DoneIcon />}
+                onClick={() => {
+                  handleLoadFormButtonClick(
+                    user,
+                    formPickerSelectItem,
+                    dispatch
+                  );
+                }}
+              >
+                Ausgewähltes Formular in den Editor laden
+              </Button>
+            </Hidden>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              aria-label={'Close'}
+              variant='contained'
+              color='primary'
+              className={classes.button}
+              startIcon={<Cancel />}
+              onClick={onClose}
+            >
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+    </EditorContextInstance.Consumer>
   );
 };
