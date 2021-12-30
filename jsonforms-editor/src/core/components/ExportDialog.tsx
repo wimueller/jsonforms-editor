@@ -225,18 +225,10 @@ export const ExportDialog = ({
           </DialogTitle>
           <DialogContent className={classes.content}>
             <Tabs value={selectedTab} onChange={handleTabChange}>
-              <Tab label='Schema' />
-              <Tab label='UI Schema' />
               <Tab label='Formular an Workflow-Generator senden' />
               <Tab label='Formular aus Workflow-Generator bearbeiten' />
             </Tabs>
             <Hidden xsUp={selectedTab !== 0}>
-              <FormattedJson object={schema} />
-            </Hidden>
-            <Hidden xsUp={selectedTab !== 1}>
-              <FormattedJson object={uiSchema} />
-            </Hidden>
-            <Hidden xsUp={selectedTab !== 2}>
               <TextField
                 id='form-name-input'
                 label='Name des Formulars: '
@@ -264,7 +256,7 @@ export const ExportDialog = ({
                 Formular in meinem Account abspeichern
               </Button>
             </Hidden>
-            <Hidden xsUp={selectedTab !== 3}>
+            <Hidden xsUp={selectedTab !== 1}>
               <InputLabel id='form-picker-select-label'>
                 Formular auswählen
               </InputLabel>
