@@ -36,19 +36,19 @@ export interface PaletteElement {
 const paletteElements: PaletteElement[] = [
   {
     type: 'HorizontalLayout',
-    label: 'Horizontal Layout',
+    label: 'Horizontales Layout',
     icon: <HorizontalIcon />,
     uiSchemaElementProvider: () => createLayout('HorizontalLayout'),
   } as PaletteElement,
   {
     type: 'VerticalLayout',
-    label: 'Vertical Layout',
+    label: 'Vertikales Layout',
     icon: <VerticalIcon />,
     uiSchemaElementProvider: () => createLayout('VerticalLayout'),
   },
   {
     type: 'Group',
-    label: 'Group',
+    label: 'Gruppe',
     icon: <GroupIcon />,
     uiSchemaElementProvider: () => createLayout('Group'),
   },
@@ -60,7 +60,7 @@ const paletteElements: PaletteElement[] = [
   },
   {
     type: 'Categorization',
-    label: 'Categorization',
+    label: 'Kategorisierung',
     icon: <CategorizationIcon />,
     uiSchemaElementProvider: () => createCategorization(),
   },

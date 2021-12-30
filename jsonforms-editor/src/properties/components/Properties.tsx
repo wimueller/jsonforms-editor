@@ -90,7 +90,7 @@ export const Properties: React.FC<PropertiesProps> = ({
     <NoProperties />
   );
 };
-const NoSelection = () => <div>No selection</div>;
+const NoSelection = () => <div>Keine Auswahl</div>;
 const NoProperties = () => (
-  <div>Selected element does not have any configurable properties.</div>
+  <div>Das ausgewählte Element hat keine konfigurierbaren Einstellungen.</div>
 );

@@ -58,7 +58,7 @@ export const UIElementsTree: React.FC<UIElementsTreeProps> = ({
   return (
     <div className={className}>
       <Typography variant='h6' color='inherit' noWrap>
-        Layouts & Other
+        Layout-Komponenten
       </Typography>
       <StyledTreeView defaultExpanded={['']}>
         {elements.map(({ type, label, icon, uiSchemaElementProvider }) => (

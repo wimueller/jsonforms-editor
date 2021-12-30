@@ -39,7 +39,7 @@ export const EmptyEditor: React.FC = () => {
   return (
     <div ref={drop} className={classes.root}>
       <Typography data-cy={`nolayout-drop`}>
-        Drag and drop an element from the Palette to begin.
+        Elemente per Drag and Drop hierhin ziehen um zu beginnen.
       </Typography>
     </div>
   );

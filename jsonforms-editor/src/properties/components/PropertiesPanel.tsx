@@ -20,7 +20,7 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
   return (
     <>
       <Typography variant='h6' color='inherit' noWrap>
-        Properties
+        Baustein-Eigenschaften
       </Typography>
       <Properties propertyRenderers={propertyRenderers} />
     </>

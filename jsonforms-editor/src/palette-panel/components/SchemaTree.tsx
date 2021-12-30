@@ -76,7 +76,7 @@ export const SchemaTreeView: React.FC<{
 }> = ({ schema }) => (
   <>
     <Typography variant='h6' color='inherit' noWrap>
-      Controls
+      Bausteine
     </Typography>
     {schema !== undefined ? (
       <StyledTreeView defaultExpanded={['']}>
