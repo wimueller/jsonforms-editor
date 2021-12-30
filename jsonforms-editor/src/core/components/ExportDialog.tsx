@@ -32,20 +32,9 @@ async function handleFormSendButtonClick(
   user: any,
   formName: string,
   uiSchema: any,
-  formSchema: any
+  formSchema: any,
+  onClose: any
 ) {
-  // // DEBUG
-  // console.log(
-  //   'Parameter vor saveFormRequest: User: ' +
-  //     JSON.stringify(user) +
-  //     ' formName: ' +
-  //     JSON.stringify(formName) +
-  //     ' uischema: ' +
-  //     JSON.stringify(uiSchema) +
-  //     ' formSchema: ' +
-  //     JSON.stringify(formSchema)
-  // );
-
   const saveFormRequest: any = await fetch('http://localhost:1234/saveForm', {
     method: 'POST',
     headers: {
@@ -63,9 +52,10 @@ async function handleFormSendButtonClick(
     console.error('ERROR while saving form: ' + e);
   });
   const result = await saveFormRequest.json();
-  console.log('Result nach saveFromRequest: ' + JSON.stringify(result));
 
   if (result.hasOwnProperty('created')) {
+    // close the panel
+    onClose();
     return { success: true };
   } else {
     return { error: true };
@@ -75,7 +65,8 @@ async function handleFormSendButtonClick(
 async function handleLoadFormButtonClick(
   user: any,
   selectObject: any,
-  dispatch: any
+  dispatch: any,
+  onclose: any
 ) {
   const loadFormRequest: any = await fetch('http://localhost:1234/loadForm', {
     method: 'POST',
@@ -99,6 +90,8 @@ async function handleLoadFormButtonClick(
   console.error('handleLoadFormButtonClick loadedForm: ', loadedForm);
   // set the schema in the editor context
   dispatch(Actions.setSchemas(loadedForm.dataSchema, loadedForm.uiSchema));
+  // close the panel
+  onclose();
 }
 
 // load all forms accessible by the logged in user
@@ -263,7 +256,8 @@ export const ExportDialog = ({
                     user,
                     formNameField,
                     uiSchema,
-                    schema
+                    schema,
+                    onClose
                   );
                 }}
               >
@@ -285,7 +279,8 @@ export const ExportDialog = ({
                   handleLoadFormButtonClick(
                     user,
                     formPickerSelectItem,
-                    dispatch
+                    dispatch,
+                    onClose
                   );
                 }}
               >
