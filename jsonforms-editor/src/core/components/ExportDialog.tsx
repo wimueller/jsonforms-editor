@@ -172,7 +172,9 @@ export const ExportDialog = ({
     for (let key of keys) {
       const selectComponent = selectComponents[key];
       output.push(
-        <MenuItem value={selectComponent.uuid}>{selectComponent.name}</MenuItem>
+        <MenuItem key={key} value={selectComponent.uuid}>
+          {selectComponent.name}
+        </MenuItem>
       );
     }
     return output;
