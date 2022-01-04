@@ -64,6 +64,7 @@ export class PropertiesServiceImpl implements PropertiesService {
   ): PropertySchemas | undefined => {
     const provider = maxBy(this.schemaProviders, (p) => p.tester(uiElement));
     if (!provider || provider.tester(uiElement) === NOT_APPLICABLE) {
+      console.error('Fall 1. Provider: ', provider);
       return undefined;
     }
     const elementSchemas = provider.getPropertiesSchemas(
@@ -71,6 +72,7 @@ export class PropertiesServiceImpl implements PropertiesService {
       schemaElement
     );
     if (!elementSchemas) {
+      console.error('Fall 2');
       return undefined;
     }
     const decoratedSchemas = this.schemaDecorators.reduce(

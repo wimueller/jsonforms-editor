@@ -73,9 +73,13 @@ export const Properties: React.FC<PropertiesProps> = ({
         ? tryFindByUUID(schema, linkedSchemaUUID)
         : undefined;
     setProperties(propertiesService.getProperties(uiElement, elementSchema));
+    console.error('uiElement in Properties.tsx: ', uiElement);
+    console.error('elementSchema in Properties.tsx: ', elementSchema);
   }, [propertiesService, schema, uiElement]);
 
   if (!selection) return <NoSelection />;
+
+  console.error('Properties in Properties.tsx: ', properties);
 
   return properties ? (
     <JsonForms
