@@ -46,20 +46,6 @@ export const labelUIElementDecorator: PropertySchemasDecorator = (
   return schemas;
 };
 
-export const ruleDecorator: PropertySchemasDecorator = (
-  schemas: PropertySchemas
-) => {
-  assign(schemas.schema.properties, {
-    rule: {
-      type: 'object',
-    },
-  });
-  (schemas.uiSchema as Layout).elements.push(
-    createPropertyControl('#/properties/rule')
-  );
-  return schemas;
-};
-
 export const labelDecorator: PropertySchemasDecorator = (
   schemas: PropertySchemas,
   uiElement: EditorUISchemaElement
@@ -108,5 +94,4 @@ export const defaultSchemaDecorators: PropertySchemasDecorator[] = [
   labelDecorator,
   multilineStringOptionDecorator,
   labelUIElementDecorator,
-  ruleDecorator,
 ];
