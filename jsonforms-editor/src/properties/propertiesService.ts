@@ -71,7 +71,6 @@ export class PropertiesServiceImpl implements PropertiesService {
       schemaElement
     );
     if (!elementSchemas) {
-      console.error('Fall 2');
       return undefined;
     }
     const decoratedSchemas = this.schemaDecorators.reduce(
