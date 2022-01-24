@@ -54,6 +54,10 @@ export const Properties: React.FC<PropertiesProps> = ({
   const updateProperties = useCallback(
     ({ data: updatedProperties }) => {
       if (uiElement && !isEqual(data, updatedProperties)) {
+        console.error(
+          'Updated Properties in Properties.tsx: ',
+          updatedProperties
+        );
         dispatch(
           Actions.updateUISchemaElement(uiElement.uuid, updatedProperties)
         );
@@ -76,6 +80,9 @@ export const Properties: React.FC<PropertiesProps> = ({
   }, [propertiesService, schema, uiElement]);
 
   if (!selection) return <NoSelection />;
+
+  console.error('uiSchema in properties.tsx', uiSchema);
+  console.error('Schema in properties.tsx', schema);
 
   return properties ? (
     <JsonForms

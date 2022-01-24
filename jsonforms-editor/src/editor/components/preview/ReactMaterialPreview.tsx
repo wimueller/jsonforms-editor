@@ -16,6 +16,10 @@ import React, { useMemo } from 'react';
 import { useSchema } from '../../../core/context';
 import { generateEmptyData } from '../../../core/model';
 import { useExportSchema, useExportUiSchema } from '../../../core/util/hooks';
+import {
+  calendarDateTime,
+  calendarDateTimeTester,
+} from '../customRenderers/dateTimeRenderer';
 import { previewOptions } from './options';
 
 export const ReactMaterialPreview: React.FC = () => {
@@ -27,13 +31,20 @@ export const ReactMaterialPreview: React.FC = () => {
     [editorSchema]
   );
   const ajv = createAjv(previewOptions);
+
+  // added custom renderer TODO
+  const renderers = [
+    ...materialRenderers,
+    { tester: calendarDateTimeTester, renderer: calendarDateTime },
+  ];
+
   return (
     <JsonForms
       ajv={ajv}
       data={previewData}
       schema={schema}
       uischema={uischema}
-      renderers={materialRenderers}
+      renderers={renderers}
       cells={materialCells}
     />
   );
