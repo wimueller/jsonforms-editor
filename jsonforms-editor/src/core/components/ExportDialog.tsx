@@ -16,6 +16,7 @@ import Hidden from '@material-ui/core/Hidden';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
+import CheckBox from '@material-ui/core/Checkbox';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
@@ -33,6 +34,7 @@ async function handleFormSendButtonClick(
   formName: string,
   uiSchema: any,
   formSchema: any,
+  publish: boolean,
   onClose: any
 ) {
   const saveFormRequest: any = await fetch('http://localhost:1234/saveForm', {
@@ -53,10 +55,41 @@ async function handleFormSendButtonClick(
   });
   const result = await saveFormRequest.json();
 
+  console.error('Publish bool im jsonforms editor:', publish);
+
+  // check response for created property
   if (result.hasOwnProperty('created')) {
-    // close the panel
-    onClose();
-    return { success: true };
+    // check if the form should be published now
+    if (publish) {
+      // save the uuid created by the backend
+      const createdFormUUID = result.formID;
+      // mark the form as published
+      const publishFormRequest: any = await fetch(
+        'http://localhost:1234/publishForm',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'same-origin',
+          body: JSON.stringify({
+            userID: user.user_id,
+            formName: formName,
+            jwt: user.token,
+            formTemplateUUID: createdFormUUID,
+          }),
+        }
+      ).catch((e) => {
+        console.error('ERROR while publishing form: ' + e);
+      });
+      const publishFormResult = await publishFormRequest.json();
+      // check response for created property
+      if (publishFormResult.hasOwnProperty('created')) {
+        // close the panel
+        onClose();
+        return { success: true };
+      }
+    }
   } else {
     return { error: true };
   }
@@ -148,6 +181,10 @@ export const ExportDialog = ({
   // state for the formNameField
   const [formNameField, setFormNameField] = useState('');
   const [formPickerSelectItem, setFormPickerSelectItem] = useState('');
+  const [publishChecked, setPublishChecked] = useState(false);
+  const [saveButtonText, setSaveButtonText] = useState(
+    'Formular in meinem Account abspeichern'
+  );
   const classes = useStyles();
   const [selectedTab, setSelectedTab] = useState(0);
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
@@ -205,6 +242,20 @@ export const ExportDialog = ({
     setFormNameField(event.target.value);
   }
 
+  // callback for publish Checkbox state
+  function handlePublishCheckBoxChange(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    setPublishChecked(event.target.checked);
+    if (event.target.checked) {
+      setSaveButtonText(
+        'Formular in meinem Account abspeichern & veröffentlichen'
+      );
+    } else {
+      setSaveButtonText('Formular in meinem Account abspeichern');
+    }
+  }
+
   // callback for formPickerSelectItem change
   function handleFormPickerSelectItemChange(event: any) {
     setFormPickerSelectItem(event.target.value);
@@ -239,6 +290,13 @@ export const ExportDialog = ({
                 onChange={handleTextFieldChange}
               />
               <br />
+              <label>Formular sofort veröffentlichen?</label>
+              <CheckBox
+                id='publishFormCheckBox'
+                checked={publishChecked}
+                onChange={handlePublishCheckBoxChange}
+              />
+              <br />
               <Button
                 aria-label={'Save form'}
                 variant='contained'
@@ -251,11 +309,12 @@ export const ExportDialog = ({
                     formNameField,
                     uiSchema,
                     schema,
+                    publishChecked,
                     onClose
                   );
                 }}
               >
-                Formular in meinem Account abspeichern
+                {saveButtonText}
               </Button>
             </Hidden>
             <Hidden xsUp={selectedTab !== 1}>
