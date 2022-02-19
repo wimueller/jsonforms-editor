@@ -35,6 +35,8 @@ async function handleFormSendButtonClick(
   uiSchema: any,
   formSchema: any,
   publish: boolean,
+  usersThatCanFillOut: [string],
+  usersThatCanViewFilledOut: [string],
   onClose: any
 ) {
   const saveFormRequest: any = await fetch('http://localhost:1234/saveForm', {
@@ -77,6 +79,8 @@ async function handleFormSendButtonClick(
             formName: formName,
             jwt: user.token,
             formTemplateUUID: createdFormUUID,
+            usersThatCanFillOut: usersThatCanFillOut,
+            usersThatCanViewFilledOut: usersThatCanViewFilledOut,
           }),
         }
       ).catch((e) => {
@@ -149,6 +153,26 @@ async function loadSelectFormElements(user: any) {
   return receivedFormObjects;
 }
 
+// load all users(id and name), that are registered at the workflow-generator
+async function loadUserSelectComponents(user: any) {
+  const receivedUsersRequest: any = await fetch(
+    'http://localhost:1234/loadUsers',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        jwt: user.token,
+      }),
+    }
+  );
+  const receivedUserObjects: [any] = await receivedUsersRequest.json();
+
+  return receivedUserObjects;
+}
+
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     button: {
@@ -181,6 +205,10 @@ export const ExportDialog = ({
   // state for the formNameField
   const [formNameField, setFormNameField] = useState('');
   const [formPickerSelectItem, setFormPickerSelectItem] = useState('');
+  const [userPickerCanViewSelectItem, setUserPickerCanViewSelectItem] =
+    useState([]);
+  const [userPickerFillOutSelectItem, setuserPickerFillOutSelectItem] =
+    useState([]);
   const [publishChecked, setPublishChecked] = useState(false);
   const [saveButtonText, setSaveButtonText] = useState(
     'Formular in meinem Account abspeichern'
@@ -192,12 +220,17 @@ export const ExportDialog = ({
   };
   // stores the list of available forms
   const [selectComponents, setSelectComponents] = useState(null);
+  // stores the list of users with IDs
+  const [userSelectComponents, setUserSelectComponents] = useState([]);
 
   async function fetchSelectFormElements() {
-    console.error('Load Select Form start');
     let formObject = await loadSelectFormElements(user);
-    console.error('FormObject: ', formObject);
     setSelectComponents(formObject);
+  }
+
+  async function fetchUserSelectElements() {
+    var users = await loadUserSelectComponents(user);
+    setUserSelectComponents(users);
   }
 
   function renderSelectMenuItems() {
@@ -217,7 +250,23 @@ export const ExportDialog = ({
     return output;
   }
 
-  function renderSelectFormElements() {
+  function renderUserSelectMenuItems() {
+    let output = [];
+    if (userSelectComponents == null) {
+      return <MenuItem value='loading'>Lädt</MenuItem>;
+    }
+    userSelectComponents.forEach((user) => {
+      var userid = Object.keys(user)[0];
+      output.push(
+        <MenuItem key={userid} value={userid}>
+          {user[userid]}
+        </MenuItem>
+      );
+    });
+    return output;
+  }
+
+  function renderSelectForm() {
     return (
       <Select
         key={JSON.stringify(selectComponents)}
@@ -232,9 +281,42 @@ export const ExportDialog = ({
     );
   }
 
+  function renderUsersCanViewSelect() {
+    return (
+      <Select
+        key={JSON.stringify(userSelectComponents) + 'canView'}
+        labelId='user-picker-canview-select-label'
+        id='user-picker-canview-select'
+        value={userPickerCanViewSelectItem}
+        label='Nutzer auswählen, die Ergebnisse einsehen können'
+        multiple={true}
+        onChange={handleUserPickerCanViewSelectItemChange}
+      >
+        {renderUserSelectMenuItems()}
+      </Select>
+    );
+  }
+
+  function renderUsersCanFillOutSelect() {
+    return (
+      <Select
+        key={JSON.stringify(userSelectComponents) + 'canFillOut'}
+        labelId='user-picker-fillout-select-label'
+        id='user-picker-fillout-select'
+        value={userPickerFillOutSelectItem}
+        label='Nutzer auswählen, die Ergebnisse einsehen können'
+        multiple={true}
+        onChange={handleUserPickerFillOutSelectItemChange}
+      >
+        {renderUserSelectMenuItems()}
+      </Select>
+    );
+  }
+
   // useEffect to load the users forms
   useEffect(() => {
     fetchSelectFormElements();
+    fetchUserSelectElements();
   }, []);
 
   // callback for formname textfield change
@@ -259,6 +341,17 @@ export const ExportDialog = ({
   // callback for formPickerSelectItem change
   function handleFormPickerSelectItemChange(event: any) {
     setFormPickerSelectItem(event.target.value);
+  }
+
+  // callback for userPickerSelectItem change
+  function handleUserPickerCanViewSelectItemChange(event: any) {
+    console.error('Event target value handle User: ', event.target.value);
+    setUserPickerCanViewSelectItem(event.target.value);
+  }
+
+  // callback for userPickerFillOutSelectItemChange change
+  function handleUserPickerFillOutSelectItemChange(event: any) {
+    setuserPickerFillOutSelectItem(event.target.value);
   }
 
   return (
@@ -297,6 +390,20 @@ export const ExportDialog = ({
                 onChange={handlePublishCheckBoxChange}
               />
               <br />
+              <Hidden xsUp={!publishChecked}>
+                <label>
+                  Welche Nutzer sollen das Fomrular ausfüllen dürfen?
+                </label>
+                <br />
+                {renderUsersCanFillOutSelect()}
+                <br />
+                <label>
+                  Welche Nutzer sollen die Ergebnisse einsehen dürfen?
+                </label>
+                <br />
+                {renderUsersCanViewSelect()}
+                <br />
+              </Hidden>
               <Button
                 aria-label={'Save form'}
                 variant='contained'
@@ -310,6 +417,8 @@ export const ExportDialog = ({
                     uiSchema,
                     schema,
                     publishChecked,
+                    userPickerCanViewSelectItem,
+                    userPickerCanViewSelectItem,
                     onClose
                   );
                 }}
@@ -321,7 +430,7 @@ export const ExportDialog = ({
               <InputLabel id='form-picker-select-label'>
                 Formular auswählen
               </InputLabel>
-              {renderSelectFormElements()}
+              {renderSelectForm()}
               <Button
                 aria-label={'Load form'}
                 variant='contained'
