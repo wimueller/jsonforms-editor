@@ -392,7 +392,7 @@ export const ExportDialog = ({
               <br />
               <Hidden xsUp={!publishChecked}>
                 <label>
-                  Welche Nutzer sollen das Fomrular ausfüllen dürfen?
+                  Welche Nutzer sollen das Formular ausfüllen dürfen?
                 </label>
                 <br />
                 {renderUsersCanFillOutSelect()}
