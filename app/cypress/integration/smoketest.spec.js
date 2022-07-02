@@ -11,6 +11,6 @@ describe('Smoketest', () => {
   });
 
   it('Renders Title', () => {
-    cy.contains('JSON Forms Editor');
+    cy.contains('Workflow-Planer Formular-Editor');
   });
 });

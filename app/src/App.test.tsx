@@ -16,6 +16,6 @@ test('renders header', async () => {
   await act(async () => {
     render(<App />, container);
   });
-  const titleElement = container.getByText(/JSON Forms Editor/i);
+  const titleElement = container.getByText(/Workflow-Planer Formular-Editor/i);
   expect(titleElement).toBeInTheDocument();
 });
