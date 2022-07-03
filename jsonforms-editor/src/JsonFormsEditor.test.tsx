@@ -24,6 +24,6 @@ test('renders header', async () => {
       container
     );
   });
-  const titleElement = container.getByText(/JSON Forms Editor/i);
+  const titleElement = container.getByText(/Workflow-Planer Formular-Editor/i);
   expect(titleElement).toBeInTheDocument();
 });

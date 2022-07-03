@@ -48,19 +48,19 @@ const paletteElements: PaletteElement[] = [
   },
   {
     type: 'Group',
-    label: 'Gruppe',
+    label: 'Gruppierung',
     icon: <GroupIcon />,
     uiSchemaElementProvider: () => createLayout('Group'),
   },
   {
     type: 'Label',
-    label: 'Label',
+    label: 'Beschriftung',
     icon: <LabelIcon />,
     uiSchemaElementProvider: () => createLabel(),
   },
   {
     type: 'Categorization',
-    label: 'Kategorisierung',
+    label: 'Kategorisierung mit Reitern',
     icon: <CategorizationIcon />,
     uiSchemaElementProvider: () => createCategorization(),
   },

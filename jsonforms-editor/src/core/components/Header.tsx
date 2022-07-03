@@ -45,7 +45,7 @@ export const Header: React.FC<HeaderProps> = ({ user }) => {
           noWrap
           className={classes.title}
         >
-          Formular-Editor des Workflow-Planers
+          Workflow-Planer Formular-Editor
         </Typography>
         <IconButton
           aria-label={`Download`}
