@@ -8,6 +8,7 @@
 // @ts-nocheck
 import { TextField } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
+import CheckBox from '@material-ui/core/Checkbox';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -16,16 +17,16 @@ import Hidden from '@material-ui/core/Hidden';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
-import CheckBox from '@material-ui/core/Checkbox';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import Cancel from '@material-ui/icons/Cancel';
 import DoneIcon from '@material-ui/icons/Done';
 import React, { useCallback, useEffect, useState } from 'react';
+
 import { EditorContextInstance } from '../context/context';
-import { EditorAction } from '../model/actions';
 import { Actions } from '../model';
+import { EditorAction } from '../model/actions';
 import { FormattedJson } from './Formatted';
 
 // TODO callback function sends the form to the hardcoded backend
@@ -228,7 +229,7 @@ export const ExportDialog = ({
     setSelectComponents(formObject);
   }
 
-  async function fetchUserSelectElements() {
+  async function fetchSelectUserElements() {
     var users = await loadUserSelectComponents(user);
     setUserSelectComponents(users);
   }
@@ -316,7 +317,7 @@ export const ExportDialog = ({
   // useEffect to load the users forms
   useEffect(() => {
     fetchSelectFormElements();
-    fetchUserSelectElements();
+    fetchSelectUserElements();
   }, []);
 
   // callback for formname textfield change
@@ -371,8 +372,8 @@ export const ExportDialog = ({
           </DialogTitle>
           <DialogContent className={classes.content}>
             <Tabs value={selectedTab} onChange={handleTabChange}>
-              <Tab label='Formular an Workflow-Generator senden' />
-              <Tab label='Formular aus Workflow-Generator bearbeiten' />
+              <Tab label='Formular abspeichern' />
+              <Tab label='Formular zur Bearbeitung laden' />
             </Tabs>
             <Hidden xsUp={selectedTab !== 0}>
               <TextField
